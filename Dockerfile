@@ -1,5 +1,8 @@
 # Etapa 1: Compilar o binário Go
-FROM golang:1.20-alpine AS builder
+FROM golang:alpine AS builder
+
+# Instalar o UPX para compactar o binário
+RUN apk add --no-cache upx
 
 # Definir o diretório de trabalho dentro do container
 WORKDIR /app
@@ -7,14 +10,14 @@ WORKDIR /app
 # Copiar o código Go para o diretório de trabalho
 COPY . .
 
-# Compilar o binário para Linux
-RUN go build -o app main.go
+# Compilar o binário para Linux, reduzindo o tamanho com flags de otimização
+RUN go build -ldflags="-s -w" -o app main.go
 
-# Etapa 2: Criar a imagem final
-FROM alpine:3.17
+# Compactar o binário usando UPX
+RUN upx --best app
 
-# Copiar o binário compilado da etapa anterior
+# Etapa 2: Usar a imagem mínima "scratch" para rodar o binário
+FROM scratch
 COPY --from=builder /app/app /app/app
-
-# Definir o ponto de entrada para o binário
 ENTRYPOINT ["/app/app"]
+
