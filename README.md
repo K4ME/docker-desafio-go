@@ -3,5 +3,5 @@
 ## 💻 Rode o Projeto 
 
 ```sh
-  docker build -t macrini/fullcycle .
+  docker run macrini/fullcycle
 ```
